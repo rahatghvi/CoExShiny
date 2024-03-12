@@ -1,0 +1,13 @@
+Package: CoExShiny
+Type: Package
+Title: Shiny Web App for Visualising Coexpression data
+Version: 0.1.0
+Author: Raha Taghavi
+Maintainer: The package maintainer <yourself@somewhere.net>
+Description: Creates a shiny web app to visualize coexpression data from seurat objects
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.3.1
+Imports/Dependencies: 'Seurat', 'SeuratObject', 'ShinyCell', 'dplyr', 'glue', 'shiny',
+     'tidyr'
