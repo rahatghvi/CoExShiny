@@ -14,8 +14,7 @@ if(length(newPkg)){install.packages(newPkg)}
 
 ##### installing and loading CoExShiny
 ```R
-install.packages("CoExShiny")
-devtools::install_github("CoExShiny")
+devtools::install_github("rahatghvi/CoExShiny")
 
 library(CoExShiny)
 ```
