@@ -231,7 +231,7 @@ server <- function(input, output, session) {
         ggplot(expressions, aes(x = ident, fill = coex)) +
           geom_bar() +
           theme_classic() +
-          scale_fill_manual(values = c("#4CC9F0", "#7209B7", "#4361EE", "#F72585"), name = "Coex Legend") +
+          scale_fill_manual(values = c("#4CC9F0", "#7209B7", "#4361EE", "#F72585"), name = glue("CoExpression Level: \n {gene1} and {gene2}") +
           labs(x = "cluster")
       })
 
@@ -259,7 +259,7 @@ server <- function(input, output, session) {
           ggplot(aes(x = ident, y = percentage, fill = coex)) +
           geom_col() +
           theme_classic() +
-          scale_fill_manual(values = c("#4CC9F0", "#7209B7", "#4361EE", "#F72585"), name = "Coex Legend") +
+          scale_fill_manual(values = c("#4CC9F0", "#7209B7", "#4361EE", "#F72585"), name = glue("CoExpression Level: \n {gene1} and {gene2}") +
           labs(x = "cluster")
       })
 
