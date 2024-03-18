@@ -1,5 +1,5 @@
 # CoExShiny
-CoExSHiny is an R package designed to facilitate the creation of interactive Shiny web applications. Its main objective is to enable the visualization of co-expression patterns between two genes using single cell data input in Seurat format. The application offers multiple formats for data representation, including umap, bar plots, stacked bar plots, and tables. The package also allows for the display of metadata plots and summaries in formats that are most suitable for the data. 
+CoExShiny is an R package designed to facilitate the creation of interactive Shiny web applications. Its main objective is to enable the visualization of co-expression patterns between two genes using single cell data input in Seurat format. The application offers multiple formats for data representation, including umap, bar plots, stacked bar plots, and tables. The package also allows for the display of metadata plots and summaries in formats that are most suitable for the data. 
 
 # installation 
 
