@@ -333,17 +333,17 @@ server <- function(input, output, session) {
 
 
     output$help1 <- renderText({
-      "
+      '
    MetaData:
    The first panel of the interface displays a plot and provides a summary of metadata information.
-    "
+    '
     })
 
     output$help2 <- renderText({
-      "
+      '
     Markers:
     In the second panel, users can generate a list of genes from a data set of differentially expressed markers in the dataset. It is important to note that users must save the gene list by clicking the "save" button, for the list to be able to proceed to the third panel.
-    "
+    '
     })
     output$help3 <- renderText({
       '

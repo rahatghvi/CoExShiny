@@ -23,7 +23,7 @@
 #' @examples
 #' create_coex_files(neural, logfc=1 ,  pval = 0.1, dirname = "CoEx")
 #'
-create_coex_files <- function(data, logfc = 1, pval = 0.1, dirname = "CoEx") {
+create_coex_files <- function(data , logfc = 1, pval = 0.1, dirname = "CoEx") {
   workingdiro <- getwd()
   dir.create(dirname)
   workingdir <- paste0(workingdiro, "/", dirname)
