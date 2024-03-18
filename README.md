@@ -6,7 +6,7 @@ CoExShiny is an R package designed to facilitate the creation of interactive Shi
 ##### required packages
 ```R
 # checking and installing required packages
-reqPkg = c("Seurat", "SeuratObject", "dplyr", "glue", "shiny",
+reqPkg = c("devtools", "Seurat", "SeuratObject", "dplyr", "glue", "shiny",
      "tidyr", "shinythemes", "DT" , "ggplot2", "tibble", "RColorBrewer")
 newPkg = reqPkg[!(reqPkg %in% installed.packages()[,"Package"])]
 if(length(newPkg)){install.packages(newPkg)}
@@ -21,14 +21,18 @@ library(CoExShiny)
 
 # Usage guide
 #### Creating the app
-CoExShiny receives input in the form of clustered Seurat objects. It processes the input to create a list of all markers that exhibit differential expression and a corresponding metadata list. These files are then used to generate a customized Shiny app.
+CoExShiny receives input in the form of clustered Seurat objects. It processes the input to create a list of all markers that exhibit differential expression and a corresponding metadata list. These files are then used to generate a customized Shiny app. The folder will be created in current working directory. 
 
 ```R
 data("neural")
 
+# specify the directory path where you want to create the files to ensure they are created in a specific folder.
+setwd("D:/USER")
+
 # Default folder name is CoEx
 create_coex_files(neural)
 ```
+
 
 Another code is then used to run the app. Alternatively the app can be find under CoEx/bin/app folder and it can be launched via opening opening either `server.R` or `ui.R`  in Rstudio and clicking "Run App" button at top right side of source window
 
