@@ -6,7 +6,7 @@ CoExSHiny is an R package designed to facilitate the creation of interactive Shi
 ##### required packages
 ```R
 # checking and installing required packages
-reqPkg = c("Seurat", "SeuratObject"," dplyr", "glue", "shiny",
+reqPkg = c("Seurat", "SeuratObject", "dplyr", "glue", "shiny",
      "tidyr", "shinythemes", "DT" , "ggplot2", "tibble", "RColorBrewer")
 newPkg = reqPkg[!(reqPkg %in% installed.packages()[,"Package"])]
 if(length(newPkg)){install.packages(newPkg)}
