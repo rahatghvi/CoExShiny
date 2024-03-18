@@ -33,7 +33,7 @@ create_coex_files(neural)
 Another code is then used to run the app. Alternatively the app can be find under CoEx/bin/app folder and it can be launched via opening opening either `server.R` or `ui.R`  in Rstudio and clicking "Run App" button at top right side of source window
 
 ```R
-# replace this with the absolute path to the newly created folder
+# replace 'D:/USER' with the absolute path to the newly created folder
 CoExApp("D:/USER/CoEx")
 ```
 
