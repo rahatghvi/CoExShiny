@@ -12,10 +12,12 @@ newPkg = reqPkg[!(reqPkg %in% installed.packages()[,"Package"])]
 if(length(newPkg)){install.packages(newPkg)}
 ```
 
-##### installing CoExShiny
+##### installing and loading CoExShiny
 ```R
 install.packages("CoExShiny")
 devtools::install_github("CoExShiny")
+
+library(CoExShiny)
 ```
 
 # Usage guide
