@@ -14,7 +14,6 @@
 #' @export
 #'
 #' @import shiny
-#' @import ShinyCell
 #' @import dplyr
 #' @import tidyr
 #' @import SeuratObject
@@ -42,8 +41,8 @@ create_coex_files <- function(data, logfc = 1, pval = 0.1, dirname = "CoEx") {
     dplyr::arrange(nchar(gene), gene)
 
   # create metadata file
-  cemeta <- as_tibble(cbind(rownames_to_column(data@meta.data, var = "sampleID")))
-  umapcoords <- rownames_to_column(as_tibble(data@reductions[["umap"]]@cell.embeddings, rownames = NA), var = "sampleID")
+  cemeta <- as_tibble(cbind(tibble::rownames_to_column(data@meta.data, var = "sampleID")))
+  umapcoords <- tibble::rownames_to_column(as_tibble(data@reductions[["umap"]]@cell.embeddings, rownames = NA), var = "sampleID")
   cemeta <- cemeta |>
     full_join(umapcoords,
               by = join_by(sampleID)

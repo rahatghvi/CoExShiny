@@ -2,15 +2,15 @@ Package: CoExShiny
 Type: Package
 Title: Shiny Web App for Visualising Coexpression data
 Version: 0.1.0
-Author: Raha Taghavi
-Maintainer: The package maintainer <yourself@somewhere.net>
+Author: Raha Taghavi , Thomas whalley ,Barbara Szomolay
+Maintainer: <TaghaviR@cardiff.ac.uk>
 Description: Creates a shiny web app to visualize coexpression data from seurat objects
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.3.1
-Imports/Dependencies: 'Seurat', 'SeuratObject', 'ShinyCell', 'dplyr', 'glue', 'shiny',
-     'tidyr'
+Imports: Seurat, SeuratObject, dplyr, glue, shiny,
+     tidyr, shinythemes, DT , ggplot2, tibble, RColorBrewer
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
