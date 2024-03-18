@@ -6,8 +6,7 @@
 #' @export
 #'
 #'
-CoExApp <- function(absolutefilePath ){
-  setwd(absolutefilePath)
+CoExApp <- function(absolutefilePath){
   appDir <- file.path( absolutefilePath, "bin/app")
   shinyAppDir(appDir)
 }
