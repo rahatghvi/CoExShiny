@@ -26,7 +26,7 @@ CoExShiny receives input in the form of clustered Seurat objects. It processes t
 ```R
 data("neural")
 
-# specify the directory path where you want to create the files to ensure they are created in a specific folder.
+# you can specify the directory path where you want to create the files to ensure they are created in a specific folder.
 setwd("D:/USER")
 
 # Default folder name is CoEx
@@ -37,7 +37,7 @@ create_coex_files(neural)
 Another code is then used to run the app. Alternatively the app can be find under CoEx/bin/app folder and it can be launched via opening opening either `server.R` or `ui.R`  in Rstudio and clicking "Run App" button at top right side of source window
 
 ```R
-# replace 'D:/USER' with the absolute path to the newly created folder
+# replace 'D:/USER/CoEx' with the absolute path to the newly created folder
 CoExApp("D:/USER/CoEx")
 ```
 
