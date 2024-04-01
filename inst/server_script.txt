@@ -18,16 +18,16 @@ server <- function(input, output, session) {
 
   # Reactive function to generate the meta_data plot
   # parameters: input$meta_data
-  meta_plot <- reactive({
+  meta_plot <- shiny::reactive({
     if (input$meta_data %in% c("percent.mt") || grepl("^nCount_[A-Z]", input$meta_data) || grepl("^nFeature_[A-Z]", input$meta_data)) {
       # Plot for numeric meta_data
-      return(ggplot(cemeta, aes(
+      return(ggplot2::ggplot(cemeta, ggplot2::aes(
         x = seurat_clusters,
         y = .data[[input$meta_data]],
         fill = seurat_clusters
       )) +
-        geom_point(position = position_jitter(width = 0.3), size = 0.001) +
-        geom_violin(alpha = 0.9) +
+        ggplot2::geom_point(position = ggplot2::position_jitter(width = 0.3), size = 0.001) +
+        ggplot2::geom_violin(alpha = 0.9) +
         theme_classic() +
         labs(title = "information plot", fill = "cluster"))
     } else if (class(cemeta[[input$meta_data]]) %in% c("character")) {
@@ -66,6 +66,16 @@ server <- function(input, output, session) {
   output$meta_plot <- renderPlot({
     print(meta_plot())
   })
+
+  # Define a downloadHandler for downloading the umap_plot as a PNG file.
+  output$download_meta_plot <- downloadHandler(
+    filename = function() {
+      "meta_plot.png"
+    },
+    content = function(file) {
+      ggsave(file, meta_plot(), width = 8, height = 6, units = "in", dpi = 300)
+    }
+  )
 
   # Render the metasummary output based on the selected meta_data
   output$meta_summary <- renderPrint({

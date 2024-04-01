@@ -9,7 +9,7 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.3.1
-Imports: Seurat, SeuratObject, dplyr, glue, shiny,
+Imports: Seurat, dplyr, glue, shiny,
      tidyr, shinythemes, DT , ggplot2, tibble, RColorBrewer
 Suggests: 
     testthat (>= 3.0.0)

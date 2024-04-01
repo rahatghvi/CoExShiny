@@ -36,15 +36,15 @@ create_coex_files <- function(data , logfc = 1, pval = 0.1, dirname = "CoEx") {
   dir.create("input")
 
   # create markers file
-  marker <- FindAllMarkers(data, only.pos = TRUE, logfc.threshold = logfc)
+  marker <- Seurat::FindAllMarkers(data, only.pos = TRUE, logfc.threshold = logfc)
   markers <- subset(marker, p_val_adj < pval) |>
     dplyr::arrange(nchar(gene), gene)
 
   # create metadata file
-  cemeta <- as_tibble(cbind(tibble::rownames_to_column(data@meta.data, var = "sampleID")))
-  umapcoords <- tibble::rownames_to_column(as_tibble(data@reductions[["umap"]]@cell.embeddings, rownames = NA), var = "sampleID")
+  cemeta <- tibble::as_tibble(cbind(tibble::rownames_to_column(data@meta.data, var = "sampleID")))
+  umapcoords <- tibble::rownames_to_column(tibble::as_tibble(data@reductions[["umap"]]@cell.embeddings, rownames = NA), var = "sampleID")
   cemeta <- cemeta |>
-    full_join(umapcoords,
+   dplyr::full_join(umapcoords,
               by = join_by(sampleID)
     )
 
@@ -67,8 +67,8 @@ create_coex_files <- function(data , logfc = 1, pval = 0.1, dirname = "CoEx") {
   ui_content <- readLines(ui_path)
   server_content <- readLines(server_path)
 
-  ui <- glue('{paste(ui_content, collapse = "\n")}')
-  server <- glue('{paste(server_content, collapse = "\n")}')
+  ui <- glue::glue('{paste(ui_content, collapse = "\n")}')
+  server <- glue::glue('{paste(server_content, collapse = "\n")}')
 
   writeLines(ui, "bin/app/ui.R")
   writeLines(server, "bin/app/server.R")
