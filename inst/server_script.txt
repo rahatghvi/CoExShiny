@@ -54,12 +54,12 @@ server <- function(input, output, session) {
         theme_bw() +
         labs(title = glue('information plot - {input$meta_data}'), color = input$meta_data))
     } else {
-      # Plot for other types of meta_data
+      # Plot for continous types of meta_data
       return(ggplot(cemeta, aes(x = umap_1, y = umap_2)) +
         geom_point(size = 1, stroke = 1, pch = 21, alpha = 1, color = "black", show.legend = FALSE) +
         geom_point(aes(color = .data[[input$meta_data]]), size = 0.9) +
         theme_bw() +
-        scale_color_gradient(low = "blue", high = "red") +
+        scale_color_gradient(low = "#bdd7e7", high = "#042d94") +
         labs(title = glue('information plot - {input$meta_data}'), color = input$meta_data))
     }
   })
