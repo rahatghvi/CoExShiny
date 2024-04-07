@@ -37,14 +37,14 @@ server <- function(input, output, session) {
           geom_point(size = 1, stroke = 1, pch = 21, alpha = 1, color = "black", show.legend = FALSE) +
           geom_point(aes(color = .data[[input$meta_data]]), size = 0.9, show.legend = FALSE) +
           theme_bw() +
-          labs(title = 'information plot - {input$meta_data}', color = input$meta_data))
+          labs(title = glue('information plot - {input$meta_data}'), color = input$meta_data))
       } else {
         # Plot for character meta_data with short labels
         return(ggplot(cemeta, aes(x = umap_1, y = umap_2)) +
           geom_point(size = 1, stroke = 1, pch = 21, alpha = 1, color = "black", show.legend = FALSE) +
           geom_point(aes(color = .data[[input$meta_data]]), size = 0.9) +
           theme_bw() +
-          labs(title = "information plot", color = input$meta_data))
+          labs(title = glue('information plot - {input$meta_data}'), color = input$meta_data))
       }
     } else if (class(cemeta[[input$meta_data]]) %in% c("factor")) {
       # Plot for factor meta_data
@@ -52,7 +52,7 @@ server <- function(input, output, session) {
         geom_point(size = 1, stroke = 1, pch = 21, alpha = 1, color = "black", show.legend = FALSE) +
         geom_point(aes(color = .data[[input$meta_data]]), size = 0.9) +
         theme_bw() +
-        labs(title = 'information plot - {input$meta_data}', color = input$meta_data))
+        labs(title = glue('information plot - {input$meta_data}'), color = input$meta_data))
     } else {
       # Plot for other types of meta_data
       return(ggplot(cemeta, aes(x = umap_1, y = umap_2)) +
@@ -60,7 +60,7 @@ server <- function(input, output, session) {
         geom_point(aes(color = .data[[input$meta_data]]), size = 0.9) +
         theme_bw() +
         scale_color_gradient(low = "blue", high = "red") +
-        labs(title = "information plot", color = input$meta_data))
+        labs(title = glue('information plot - {input$meta_data}'), color = input$meta_data))
     }
   })
   output$meta_plot <- renderPlot({
@@ -218,8 +218,8 @@ server <- function(input, output, session) {
           theme_bw() +
           scale_color_manual(values = c("#4CC9F0", "#7209B7", "#4361EE", "#F72585"), name = glue("CoExpression Level: \n {gene1} and {gene2}"))+
           labs(title = glue("UMAP plot - {input$gene1} and {input$gene2}"))
-        
-      }) 
+
+      })
 
       # Render the umap_plot as a plot output.
       output$coex_plot <- renderPlot({
@@ -321,7 +321,7 @@ server <- function(input, output, session) {
       # Download the coexpression table as a CSV file
       output$download_coex_table <- downloadHandler(
         filename = function() {
-          "coex_table.csv" 
+          "coex_table.csv"
         },
         content = function(file) {
           write.csv(coexpression_table, file, row.names = FALSE)

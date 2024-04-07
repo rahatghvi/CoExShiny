@@ -1,0 +1,370 @@
+# Read the clustered data from the specified file path
+data <- readRDS(file.path("../..", "input/clustereddata.rds"))
+
+# Read the cemeta object from the specified file path
+cemeta <- readRDS(file.path("../..", "source/cemeta.rds"))
+
+# Read the markers object from the specified file path
+markers <- readRDS(file.path("../..", "source/markers.rds"))
+
+# Initialize the genes variable with a default value
+genes <- "No genes selected"
+
+
+
+server <- function(input, output, session) {
+  # first tab
+  ## meta data plot
+
+  # Reactive function to generate the meta_data plot
+  # parameters: input$meta_data
+  meta_plot <- shiny::reactive({
+    if (input$meta_data %in% c("percent.mt") || grepl("^nCount_[A-Z]", input$meta_data) || grepl("^nFeature_[A-Z]", input$meta_data)) {
+      # Plot for numeric meta_data
+      return(ggplot2::ggplot(cemeta, ggplot2::aes(
+        x = seurat_clusters,
+        y = .data[[input$meta_data]],
+        fill = seurat_clusters
+      )) +
+        ggplot2::geom_point(position = ggplot2::position_jitter(width = 0.3), size = 0.001) +
+        ggplot2::geom_violin(alpha = 0.9) +
+        theme_bw() +
+        labs(title = glue('information plot - {input$meta_data}'), fill = "cluster"))
+    } else if (class(cemeta[[input$meta_data]]) %in% c("character")) {
+      if (any(sapply(cemeta[[input$meta_data]], function(x) nchar(x) > 20))) {
+        # Plot for character meta_data with long labels
+        return(ggplot(cemeta, aes(x = umap_1, y = umap_2)) +
+          geom_point(size = 1, stroke = 1, pch = 21, alpha = 1, color = "black", show.legend = FALSE) +
+          geom_point(aes(color = .data[[input$meta_data]]), size = 0.9, show.legend = FALSE) +
+          theme_bw() +
+          labs(title = glue('information plot - {input$meta_data}'), color = input$meta_data))
+      } else {
+        # Plot for character meta_data with short labels
+        return(ggplot(cemeta, aes(x = umap_1, y = umap_2)) +
+          geom_point(size = 1, stroke = 1, pch = 21, alpha = 1, color = "black", show.legend = FALSE) +
+          geom_point(aes(color = .data[[input$meta_data]]), size = 0.9) +
+          theme_bw() +
+          labs(title = glue('information plot - {input$meta_data}'), color = input$meta_data))
+      }
+    } else if (class(cemeta[[input$meta_data]]) %in% c("factor")) {
+      # Plot for factor meta_data
+      return(ggplot(cemeta, aes(x = umap_1, y = umap_2)) +
+        geom_point(size = 1, stroke = 1, pch = 21, alpha = 1, color = "black", show.legend = FALSE) +
+        geom_point(aes(color = .data[[input$meta_data]]), size = 0.9) +
+        theme_bw() +
+        labs(title = glue('information plot - {input$meta_data}'), color = input$meta_data))
+    } else {
+      # Plot for other types of meta_data
+      return(ggplot(cemeta, aes(x = umap_1, y = umap_2)) +
+        geom_point(size = 1, stroke = 1, pch = 21, alpha = 1, color = "black", show.legend = FALSE) +
+        geom_point(aes(color = .data[[input$meta_data]]), size = 0.9) +
+        theme_bw() +
+        scale_color_gradient(low = "blue", high = "red") +
+        labs(title = glue('information plot - {input$meta_data}'), color = input$meta_data))
+    }
+  })
+  output$meta_plot <- renderPlot({
+    print(meta_plot())
+  })
+
+  # Define a downloadHandler for downloading the umap_plot as a PNG file.
+  output$download_meta_plot <- downloadHandler(
+    filename = function() {
+      "meta_plot.png"
+    },
+    content = function(file) {
+      ggsave(file, meta_plot(), width = 8, height = 6, units = "in", dpi = 300)
+    }
+  )
+
+  # Render the metasummary output based on the selected meta_data
+  output$meta_summary <- renderPrint({
+    # Check if the selected meta_data is part of seurat qc
+    if (input$meta_data %in% c("percent.mt") || grepl("^nCount_[A-Z]", input$meta_data) || grepl("^nFeature_[A-Z]", input$meta_data)) {
+      # Calculate summary statistics for the selected meta_data grouped by seurat_clusters
+      msummary <- cemeta |>
+        group_by(seurat_clusters) |>
+        summarize(
+          mean = mean(.data[[input$meta_data]]),
+          median = median(.data[[input$meta_data]]),
+          sd = sd(.data[[input$meta_data]]),
+          min = min(.data[[input$meta_data]]),
+          max = max(.data[[input$meta_data]])
+        )
+    }
+    # Check if the selected meta_data is of type character or factor
+    else if (class(cemeta[[input$meta_data]]) %in% c("character", "factor")) {
+      msummary <- cemeta %>%
+        count(.data[[input$meta_data]])
+    } else {
+      # Calculate summary statistics for the selected meta_data
+      msummary <- summary(cemeta[[input$meta_data]])
+    }
+
+    # Print the selected meta_data label and the corresponding summary
+    print(paste0(input$meta_data, ":"))
+    print(msummary)
+  })
+
+
+  # second Tab
+  ## marker table rendering
+  output$mtable <- DT::renderDataTable(
+    markers[1:6],
+    selection = "multiple"
+  )
+
+  ## gene selection
+  selectedRowNames <- reactiveVal(NULL)
+
+  ## create selection
+  ## triggee by "save_button"
+  ## parameters: input$mtable_rows_selected
+  observeEvent(input$save_button, {
+    gene_selection <- markers[input$mtable_rows_selected, ] |>
+      arrange(nchar(gene), gene)
+
+
+    selectedRowNames(row.names(gene_selection))
+    updateSelectInput(session, "gene1", choices = gene_selection[, 7], selected = gene_selection[1, 7])
+    updateSelectInput(session, "gene2", choices = gene_selection[, 7], selected = gene_selection[2, 7])
+  })
+
+  ## clear selection
+  observeEvent(input$clear_button, {
+    selectedRowNames(NULL)
+    replaceData(proxy = dataTableProxy("mtable"), data = markers[1:6], resetPaging = FALSE)
+  })
+
+  ## Display the selected gene names
+  output$selectedRows <- renderPrint({
+    if (!is.null(selectedRowNames())) {
+      selectedRowNames()
+    } else {
+      "Select your genes!."
+    }
+  })
+
+
+  # third tab for coexpression
+
+  ## create coexpression file from selected markers
+  #  triggered by "generategenesum"
+  # It performs the following tasks:
+
+  # Parameters:
+  # - input$gene1: The first selected gene.
+  # - input$gene2: The second selected gene.
+
+  observeEvent(input$generate_gene_sum, {
+    # Generate a feature plot based on the selected genes
+    plt <- FeaturePlot(data, features = c(input$gene1, input$gene2))
+
+    # Replace hyphens
+    gene1 <- sub("-", ".", input$gene1)
+    gene2 <- sub("-", ".", input$gene2)
+
+    # Extract the expression data for both genes
+    expressions <- plt[[1]]$data |>
+      rownames_to_column(var = "sampleID")
+    expressions <- full_join(expressions, rownames_to_column(plt[[2]]$data, var = "sampleID"),
+      by = join_by(sampleID, umap_1, umap_2, ident)
+    )
+
+    # Create a gene summary table for expression of genes
+    summary_stats <- tibble(
+      gene = c(input$gene1, input$gene2),
+      pvalue = c(markers[input$gene1, "p_val"], markers[input$gene2, "p_val"]),
+      avg_log2F = c(markers[input$gene1, "avg_log2FC"], markers[input$gene2, "avg_log2FC"]),
+      min = c(round(min(expressions[[gene1]]), 2), round(min(expressions[[gene2]]), 2)),
+      mean = c(round(mean(expressions[[gene1]]), 2), round(mean(expressions[[gene2]]), 2)),
+      max = c(round(max(expressions[[gene1]]), 2), round(max(expressions[[gene2]]), 2)),
+      sd = c(round(sd(expressions[[gene1]]), 2), round(sd(expressions[[gene2]]), 2)),
+    )
+
+    # Render the gene summary table as a DataTable
+    output$gene_summary <- renderDataTable(
+      summary_stats
+    )
+
+    # triggered by  "generateplot"
+    # parameters: input$threshold1, input$threshold2
+    observeEvent(input$generate_plot, {
+      # mutate the expressions dataframe to add 2 new columns for expression level of 2 genes based on threshold for each
+      expressions <- expressions |>
+        mutate(!!paste0(gene1, "ex") := ifelse(.data[[gene1]] > input$Threshold1, "positive", "negative"))
+
+      expressions <- expressions |>
+        mutate(!!paste0(gene2, "ex") := ifelse(.data[[gene2]] > input$Threshold2, "positive", "negative"))
+
+
+      ### check coexpression
+      # Mutate the expressions dataframe to add a new column for coex based on the expression levels of the 2 genes
+      expressions <- expressions |>
+        mutate(coex = case_when(
+          .data[[paste0(gene1, "ex")]] == "positive" & .data[[paste0(gene2, "ex")]] == "positive" ~ "PP",
+          .data[[paste0(gene1, "ex")]] == "negative" & .data[[paste0(gene2, "ex")]] == "negative" ~ "NN",
+          .data[[paste0(gene1, "ex")]] == "negative" & .data[[paste0(gene2, "ex")]] == "positive" ~ "NP",
+          TRUE ~ "PN"
+        ))
+
+
+      ### plot output
+      # Define a reactive function that generates a ggplot object for the umap_plot.
+      umap_plot <- reactive({
+        ggplot(expressions, aes(x = umap_1, y = umap_2)) +
+          geom_point(size = 1, stroke = 1, pch = 21, alpha = 1, color = "black", show.legend = FALSE) +
+          geom_point(aes(color = coex), size = 0.9) +
+          theme_bw() +
+          scale_color_manual(values = c("#4CC9F0", "#7209B7", "#4361EE", "#F72585"), name = glue("CoExpression Level: \n {gene1} and {gene2}"))+
+          labs(title = glue("UMAP plot - {input$gene1} and {input$gene2}"))
+
+      })
+
+      # Render the umap_plot as a plot output.
+      output$coex_plot <- renderPlot({
+        print(umap_plot())
+      })
+
+      # Define a downloadHandler for downloading the umap_plot as a PNG file.
+      output$download_coex_plot <- downloadHandler(
+        filename = function() {
+          "umap_plot.png"
+        },
+        content = function(file) {
+          ggsave(file, umap_plot(), width = 8, height = 6, units = "in", dpi = 300)
+        }
+      )
+
+
+
+      ### bar plot out put
+      coex_bar_plot <- reactive({
+        ggplot(expressions, aes(x = ident, fill = coex)) +
+          geom_bar() +
+          theme_bw() +
+          scale_fill_manual(values = c("#4CC9F0", "#7209B7", "#4361EE", "#F72585"), name = glue("CoExpression Level: \n {gene1} and {gene2}")) +
+          labs(title = glue("bar plot - {input$gene1} and {input$gene2}") , x = "cluster")
+      })
+
+      # Render the bar plot
+      output$coex_bar_plot <- renderPlot({
+        print(coex_bar_plot())
+      })
+
+      # Download handler for saving the bar plot as a PNG file
+      output$download_coex_bar_plot <- downloadHandler(
+        filename = function() {
+          "coex_barplot.png"
+        },
+        content = function(file) {
+          ggsave(file, coex_bar_plot(), width = 8, height = 6, units = "in", dpi = 300)
+        }
+      )
+
+      # stacked bar plot output
+      coex_stacked_bar_plot <- reactive({
+        expressions |>
+          group_by(ident, coex) %>%
+          summarise(count = n()) %>%
+          mutate(percentage = count / sum(count) * 100) %>%
+          ggplot(aes(x = ident, y = percentage, fill = coex)) +
+          geom_col() +
+          theme_bw() +
+          scale_fill_manual(values = c("#4CC9F0", "#7209B7", "#4361EE", "#F72585"), name = glue("CoExpression Level: \n {gene1} and {gene2}")) +
+          labs(title = glue("stacked bar plot - {input$gene1} and {input$gene2}") ,x = "cluster")
+      })
+
+      # Render the stacked bar plot
+      output$coex_stacked_bar_plot <- renderPlot({
+        print(coex_stacked_bar_plot())
+      })
+
+      # Download handler for saving the stacked bar plot as a PNG file
+      output$download_coex_stacked_bar_plot <- downloadHandler(
+        filename = function() {
+          "coex_stackedbarplot.png"
+        },
+        content = function(file) {
+          ggsave(file, coex_stacked_bar_plot(), width = 8, height = 6, units = "in", dpi = 300)
+        }
+      )
+
+      ### table output
+      # Create a coexpression table with cluster information
+      coexpression_table <- tibble(
+        cluster = unique(expressions$ident),
+        cell_number = NA,
+        PP = NA,
+        NN = NA,
+        NP = NA,
+        PN = NA
+      ) |>
+        arrange(by = cluster)
+
+      ce <- c("NN", "NP", "PN", "PP")
+
+      # Populate the coexpression table with cell numbers and coexpression counts
+      for (i in coexpression_table$cluster) {
+        coexpression_table[coexpression_table$cluster == i, "cell_number"] <- sum(expressions$ident == i)
+
+        for (j in ce) {
+          coexpression_table[coexpression_table$cluster == i, j] <- sum(expressions$ident == i & expressions$coex == j)
+        }
+      }
+
+      # Render the coexpression table as a DataTable
+      output$coex_table <- renderDataTable(
+        coexpression_table
+      )
+
+      # Download the coexpression table as a CSV file
+      output$download_coex_table <- downloadHandler(
+        filename = function() {
+          "coex_table.csv"
+        },
+        content = function(file) {
+          write.csv(coexpression_table, file, row.names = FALSE)
+        }
+      )
+
+      # Download a subset of data based on selected clusters and coexpression types
+      output$download <- downloadHandler(
+        filename = function() {
+          "subset_data.csv"
+        },
+        content = function(file) {
+          subset_data <- subset(expressions, ident %in% input$check_cluster & coex %in% input$check_coex)
+          write.csv(subset_data, file, row.names = FALSE)
+        }
+      )
+    })
+
+  })
+
+    output$help1 <- renderText({
+      '
+   MetaData:
+   The first panel of the interface displays a plot and provides a summary of metadata information.
+    '
+    })
+
+    output$help2 <- renderText({
+      '
+    Markers:
+    In the second panel, users can generate a list of genes from a data set of differentially expressed markers in the dataset.
+    It is important to note that users must save the gene list by clicking the "save" button, for the list to be able to proceed to the third panel.
+    '
+    })
+    output$help3 <- renderText({
+      '
+    Figures
+    In the third panel, it is required to select two genes, and upon doing so, a table of gene summary statistics will be generated by clicking the "generate gene summary" button.\n\n
+    After, an expression threshold must be specified for each gene. By clicking the "generate plot" button, plots and tables will be generated.
+ The coexpression level of each gene is classified as either positive (P) or negative (N), where coexpression of PN implies that the first gene is expressed, and the second gene is not. \n\n
+Three types of plots, namely, UMAP plot, bar plot, and stacked bar plot, will be generated along with a table.
+If required, images of either of these plots or tables can be downloaded by clicking the download button located at the end of each panel.\n\n
+Furthermore, in the "Download Subset" panel, it is possible to download a particular subset by selecting the clusters and coexpression type of interest.'
+
+  })
+}
