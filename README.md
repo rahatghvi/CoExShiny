@@ -3,7 +3,7 @@ CoExShiny is an R package designed to facilitate the creation of interactive Shi
 
 # installation 
 
-##### required packages
+### required packages
 ```R
 # checking and installing required packages
 reqPkg = c("devtools", "Seurat", "SeuratObject", "dplyr", "glue", "shiny",
@@ -12,7 +12,10 @@ newPkg = reqPkg[!(reqPkg %in% installed.packages()[,"Package"])]
 if(length(newPkg)){install.packages(newPkg)}
 ```
 
-##### installing and loading CoExShiny
+### recommended package
+Installing "presto package" can reduce the run time significantly especially in case of larger files. Installation instructions can be found at [immunogenomics/presto - github page](https://github.com/immunogenomics/presto)
+
+### installing and loading CoExShiny
 ```R
 devtools::install_github("rahatghvi/CoExShiny")
 
@@ -20,25 +23,22 @@ library(CoExShiny)
 ```
 
 # Usage guide
-#### Creating the app
+### Creating the app
 CoExShiny receives input in the form of clustered Seurat objects. It processes the input to create a list of all markers that exhibit differential expression and a corresponding metadata list. These files are then used to generate a customized Shiny app. The folder will be created in current working directory. 
-
 ```R
 data("neural")
 
-# you can specify the directory path where you want to create the files to ensure they are created in a specific folder.
-setwd("D:/USER")
+# you can specify the directory path where you want to create the files can be to ensure they are created in a specific folder.
+setwd("D:/")
 
 # Default folder name is CoEx
 create_coex_files(neural)
 ```
 
-
 Another code is then used to run the app. Alternatively the app can be find under CoEx/bin/app folder and it can be launched via opening opening either `server.R` or `ui.R`  in Rstudio and clicking "Run App" button at top right side of source window
-
 ```R
-# replace 'D:/USER/CoEx' with the absolute path to the newly created folder
-CoExApp("D:/USER/CoEx")
+# replace "CoEx" with the absolute path to the newly created folder if needed
+CoExApp("CoEx")
 ```
 
 #### Using the app
@@ -63,9 +63,10 @@ After, an expression threshold must be specified for each gene. By clicking the 
 
 Three types of plots, namely, UMAP plot, bar plot, and stacked bar plot, will be generated along with a table. If required, images of either of these plots or tables can be downloaded by clicking the download button located at the end of each panel.
 
-![Untitled Diagram drawio](https://github.com/rahatghvi/CoExShiny/assets/153312046/18eb584d-f293-49c8-a6d5-da535c637978)
+![grid_of_images](https://github.com/rahatghvi/CoExShiny/assets/153312046/bdf718a3-ae10-45cf-bfdd-4a68dd95fd87)
+![table](https://github.com/rahatghvi/CoExShiny/assets/153312046/f2c2d244-84bd-4e2c-9ed3-692e8ac70210)
 
-Furthermore, in the "Download Subset" panel, it is possible to download a particular subset by selecting the clusters and coexpression type of interest.
+Furthermore, the "Download Subset" panel can be used to create a downloadable subset from markers files based on cluster and co-expression categories.
 
 # References:
 default data included is sourced from Yang et al. 2021:
