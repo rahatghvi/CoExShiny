@@ -4,7 +4,7 @@
 \alias{CoExApp}
 \title{run CoExShiny app}
 \usage{
-CoExApp(absolutefilePath)
+CoExApp(filePath = "CoEx")
 }
 \arguments{
 \item{absolutefilePath}{absolute file path to the directory created by creat_coex_files() command}
@@ -14,4 +14,8 @@ opens the shiny web app in a browser
 }
 \description{
 run CoExShiny app
+}
+\examples{
+CoExApp("CoEx")
+
 }
