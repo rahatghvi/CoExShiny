@@ -77,10 +77,11 @@ server <- function(input, output, session) {
     }
   )
 
+
   # Render the metasummary output based on the selected meta_data
   output$meta_summary <- renderPrint({
     # Check if the selected meta_data is part of seurat qc
-    if (input$meta_data %in% c("percent.mt") || grepl("^nCount_[A-Z]", input$meta_data) || grepl("^nFeature_[A-Z]", input$meta_data)) {
+    if (input$meta_data %in% c("percent.mt") ||input$meta_data %in% grepl("^nCount_[A-Z]", input$meta_data) ||input$meta_data %in% grepl("^nFeature_[A-Z]", input$meta_data)) {
       # Calculate summary statistics for the selected meta_data grouped by seurat_clusters
       msummary <- cemeta |>
         group_by(seurat_clusters) |>
@@ -105,6 +106,7 @@ server <- function(input, output, session) {
     print(paste0(input$meta_data, ":"))
     print(msummary)
   })
+
 
 
   # second Tab
@@ -174,7 +176,7 @@ server <- function(input, output, session) {
     # Create a gene summary table for expression of genes
     summary_stats <- tibble(
       gene = c(input$gene1, input$gene2),
-      pvalue = c(markers[input$gene1, "p_val"], markers[input$gene2, "p_val"]),
+      adj_pvalue = c(markers[input$gene1, "p_val_adj"], markers[input$gene2, "p_val_adj"]),
       avg_log2F = c(markers[input$gene1, "avg_log2FC"], markers[input$gene2, "avg_log2FC"]),
       min = c(round(min(expressions[[gene1]]), 2), round(min(expressions[[gene2]]), 2)),
       mean = c(round(mean(expressions[[gene1]]), 2), round(mean(expressions[[gene2]]), 2)),
