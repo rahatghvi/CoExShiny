@@ -81,7 +81,7 @@ server <- function(input, output, session) {
   # Render the metasummary output based on the selected meta_data
   output$meta_summary <- renderPrint({
     # Check if the selected meta_data is part of seurat qc
-    if (input$meta_data %in% c("percent.mt") ||input$meta_data %in% grepl("^nCount_[A-Z]", input$meta_data) ||input$meta_data %in% grepl("^nFeature_[A-Z]", input$meta_data)) {
+    if (input$meta_data %in% c("percent.mt") || grepl("^nCount_[A-Z]", input$meta_data) || grepl("^nFeature_[A-Z]", input$meta_data)) {
       # Calculate summary statistics for the selected meta_data grouped by seurat_clusters
       msummary <- cemeta |>
         group_by(seurat_clusters) |>
@@ -92,9 +92,7 @@ server <- function(input, output, session) {
           min = min(.data[[input$meta_data]]),
           max = max(.data[[input$meta_data]])
         )
-    }
-    # Check if the selected meta_data is of type character or factor
-    else if (class(cemeta[[input$meta_data]]) %in% c("character", "factor")) {
+    } else if (class(cemeta[[input$meta_data]]) %in% c("character", "factor")) {
       msummary <- cemeta %>%
         count(.data[[input$meta_data]])
     } else {
